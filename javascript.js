@@ -1,55 +1,74 @@
-// Create functions: add, subtract, multiply, divide
-let add = (param1, param2) => param1 + param2;
-let subtract = (param1, param2) => param1 - param2;
-let multiply = (param1, param2) => param1 * param2;
-let divide = (param1, param2) => param1 / param2;
+document.addEventListener("DOMContentLoaded", () => {
+    // Arithmetic functions
+    const add = (a, b) => a + b;
+    const subtract = (a, b) => a - b;
+    const multiply = (a, b) => a * b;
+    const divide = (a, b) => b === 0 ? 'Nope 💩' : a / b; // Division-by-zero check
 
-// Create three global variables: a number, an operator, and another number. For example, 3 + 5. 
-let param1;
-let param2;
-let operator;
+    // Global variables for operands and operator
+    let firstOperand = null;
+    let secondOperand = null;
+    let currentOperator = null;
+    let displayValue = "0";
 
-// Create a new function operate that takes an operator and two numbers and then calls one of the above functions on the numbers.
-let operate = (param1, param2, operator) => {
-    if (operator === '+') {
-       return add (param1, param2);
-    } else if (operator === '-') {
-        return subtract (param1, param2);
-    } else if (operator === '*') {
-        return multiply (param1, param2);
-    } else if (operator === '/') {
-        return divide (param1, param2);
-    } else {
+    // Reference to the display element
+    const displayElement = document.querySelector('.display');
+
+    // Function to perform operation based on the operator
+    const operate = (a, b, op) => {
+        if (op === '+') return add(a, b);
+        if (op === '-') return subtract(a, b);
+        if (op === '*') return multiply(a, b);
+        if (op === '/') return divide(a, b);
         return "Invalid operator";
-    }
-}
+    };
 
-// Establish global variable display as a string
-let display = "0";
+    // Event delegation for the keyboard
+    document.querySelector('.calculator').addEventListener("click", (event) => {
+        // Handle number buttons
+        if (event.target.classList.contains('number')) {
+            if (displayValue === "0") {
+                displayValue = event.target.textContent;
+            } else {
+                displayValue += event.target.textContent;
+            }
+            displayElement.textContent = displayValue;
 
-// Add an event listener to each digit button.
-document.querySelector('.keyboard').addEventListener("click", (event) => {
-    if (event.target.classList.contains('number')) {
-            // If the display shows "0", replace it with the clicked digit
-        if (display === "0") {
-            display = event.target.textContent;
-        // Append the digit to the existing number stored in the variable.
-        } else {
-            display += event.target.textContent;
+        // Handle operator buttons
+        } else if (event.target.classList.contains('operator')) {
+            if (displayValue !== "") {
+                if (firstOperand !== null && currentOperator !== null) { // Chaining operations
+                    secondOperand = Number(displayValue);
+                    displayValue = operate(firstOperand, secondOperand, currentOperator).toString();
+                    displayElement.textContent = displayValue;
+                    firstOperand = Number(displayValue);
+                    secondOperand = null;
+                } else {
+                    firstOperand = Number(displayValue);
+                }
+                currentOperator = event.target.textContent;
+                displayValue = "";
+            }
+
+        // Handle "=" button
+        } else if (event.target.id === "=") {
+            if (firstOperand !== null && displayValue !== "") {
+                secondOperand = Number(displayValue);
+                const result = operate(firstOperand, secondOperand, currentOperator);
+                displayElement.textContent = result;
+                displayValue = result.toString();
+                firstOperand = null;
+                secondOperand = null;
+                currentOperator = null;
+            }
+
+        // Handle "AC" (clear) button
+        } else if (event.target.id === "clear") {
+            displayValue = "0";
+            firstOperand = null;
+            secondOperand = null;
+            currentOperator = null;
+            displayElement.textContent = displayValue;
         }
-        // Update the display with the new value
-        const newDisplay = document.querySelector('.display');
-        newDisplay.textContent = display; 
-    }
+    });
 });
-
-
-
-
-
-
-
-
-
-
-
